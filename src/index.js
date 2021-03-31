@@ -27,6 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
     data.forEach(toy => {
       const cardDiv = document.createElement("div")
       cardDiv.className = "card"
+      cardDiv.dataset.id = toy.id
       toyCollection.append(cardDiv);
       h2 = document.createElement("h2")
       h2.innerText = `${toy.name}`
@@ -34,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
       img.src = `${toy.image}`
       img.className = "toy-avatar"
       p = document.createElement("p")
-      p.innerText = `This toy has ${toy.likes} likes`
+      p.innerText = `${toy.likes} likes`
       button = document.createElement("button")
       button.innerText = "Like <3"
       button.className = "like-button"
@@ -43,24 +44,33 @@ document.addEventListener("DOMContentLoaded", () => {
       cardDiv.append(p)
       cardDiv.append(button)
       button.addEventListener("click", addLikes)
-
-      function addLikes(toy) {
-        debugger
-        let configObj = {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-          },
-          body: JSON.stringify({
-            "likes": parseInt(toy.likes) + 1
-          })
-        }
-  
-        fetch(`http://localhost:3000/toys/${toy.id}`, configObj)
-    }
     })
   }
+
+  function addLikes(event) {
+    const div = event.target.parentElement
+    const likesTag = div.querySelector("p")
+    const likes = parseInt(likesTag.innerText)
+    const toyId = parseInt(div.dataset.id)
+
+    let configObj = {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      body: JSON.stringify({
+        "likes": likes + 1
+      })
+    }
+
+    fetch(`http://localhost:3000/toys/${toyId}`, configObj)
+    .then(response => response.json())
+    .then(data => {
+      likesTag.innerText = `${data.likes} likes`
+    });
+}
+
 
   function submitData() {
   
@@ -89,12 +99,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function addNewToy() {
       let values = document.getElementsByClassName("input-text")
-      img.src = values[1].value
+      img.src = values[1].value   
       submitData(values[0].value, img)
     }
-    
-
-
   
   
   
